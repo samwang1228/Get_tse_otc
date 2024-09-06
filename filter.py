@@ -1,5 +1,5 @@
 import pandas as pd
-
+import os
 def filter_four_digit_stocks(input_file, output_file):
     # 讀取 CSV 文件
     df = pd.read_csv(input_file, index_col=0)
@@ -14,6 +14,12 @@ def filter_four_digit_stocks(input_file, output_file):
     print(f"結果已保存到 {output_file}")
 
 # 使用示例
-input_file = 'stock_prices_jul_aug_2024.csv'
-output_file = 'filtered_stock_prices_otc_jul_aug_2024.csv'
-filter_four_digit_stocks(input_file, output_file)
+input_file = 'stock_prices_20240701_20240905.csv'
+otc_file=os.path.join('otc',input_file)
+tse_file=os.path.join('tse',input_file)
+otc_output_file = os.path.join('otc',f'filtered_{input_file}')
+tse_output_file = os.path.join('tse',f'filtered_{input_file}')
+filter_four_digit_stocks(otc_file, otc_output_file)
+filter_four_digit_stocks(tse_file, tse_output_file)
+
+

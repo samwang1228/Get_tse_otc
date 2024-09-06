@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 def calculate_and_sort_gains(input_file, output_file, sort_period='5天'):
     # 讀取CSV文件
@@ -15,18 +16,13 @@ def calculate_and_sort_gains(input_file, output_file, sort_period='5天'):
     # 將所有價格數據轉換為浮點數
     df = df.astype(float)
 
-    # 打印一些調試信息
-    print("前五行數據：")
-    print(df.head())
-    print("\n第一天和最後一天的價格：")
-    print(df.iloc[:, [0, -1]].head())
-
     # 計算漲幅
-    gains_5d = (df.iloc[:, min(4, num_days-1)] - df.iloc[:, 0]) / df.iloc[:, 0] if num_days >= 5 else pd.Series(np.nan, index=df.index)
-    gains_20d = (df.iloc[:, min(19, num_days-1)] - df.iloc[:, 0]) / df.iloc[:, 0] if num_days >= 20 else pd.Series(np.nan, index=df.index)
+    gains_5d = (df.iloc[:, -1] - df.iloc[:, -min(5, num_days)]) / df.iloc[:, -min(5, num_days)] if num_days >= 5 else pd.Series(np.nan, index=df.index)
+    gains_10d = (df.iloc[:, -1] - df.iloc[:, -min(10, num_days)]) / df.iloc[:, -min(10, num_days)] if num_days >= 10 else pd.Series(np.nan, index=df.index)
+    gains_20d = (df.iloc[:, -1] - df.iloc[:, -min(20, num_days)]) / df.iloc[:, -min(20, num_days)] if num_days >= 20 else pd.Series(np.nan, index=df.index)
     gains_total = (df.iloc[:, -1] - df.iloc[:, 0]) / df.iloc[:, 0]
 
-    # 打印總漲幅的一些統計信息
+    # 打印一些調試信息
     print("\n總漲幅統計：")
     print(gains_total.describe())
 
@@ -34,6 +30,7 @@ def calculate_and_sort_gains(input_file, output_file, sort_period='5天'):
     result_df = pd.DataFrame({
         '股票代碼': df.index,
         '5天漲幅': gains_5d.apply(lambda x: f'{x:.2%}' if pd.notnull(x) else 'N/A'),
+        '10天漲幅': gains_10d.apply(lambda x: f'{x:.2%}' if pd.notnull(x) else 'N/A'),
         '20天漲幅': gains_20d.apply(lambda x: f'{x:.2%}' if pd.notnull(x) else 'N/A'),
         '總漲幅': gains_total.apply(lambda x: f'{x:.2%}' if pd.notnull(x) else 'N/A')
     })
@@ -53,6 +50,13 @@ def calculate_and_sort_gains(input_file, output_file, sort_period='5天'):
     print(f"漲幅計算和排序完成，結果已保存到 {output_file}")
 
 # 使用示例
-input_file = 'filtered_stock_prices_otc_jul_aug_2024.csv'
-output_file = 'stock_gains_5d_20d_total_otc_sorted.csv'
-calculate_and_sort_gains(input_file, output_file, sort_period='總')  # 可以改為 '5天' 或 '20天' 或 '總'
+if __name__ == "__main__":
+    input_file = 'filtered_stock_prices_20240701_20240905.csv'
+    otc_file = os.path.join('otc', input_file)
+    tse_file = os.path.join('tse', input_file)
+    day=5
+    output_file = f'stock_gains_5d_10d_20d_{day}_sorted.csv'
+    otc_output_file = os.path.join('otc', output_file)
+    tse_output_file = os.path.join('tse', output_file)
+    calculate_and_sort_gains(otc_file, otc_output_file, sort_period=f'{day}天')  # 可以改為 '5天' 或 '10天' 或 '20天' 或 '總'
+    calculate_and_sort_gains(tse_file, tse_output_file, sort_period=f'{day}天')  # 可以改為 '5天' 或 '10天' 或 '20天' 或 '總'

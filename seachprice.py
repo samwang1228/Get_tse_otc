@@ -118,7 +118,7 @@ class StockDataFetcher:
         result_df = pd.concat(all_data, axis=1)
         result_df.columns = [data.name for data in all_data]
 
-        file_name = os.path.join(self.stock_type, f'_stock_prices_{self.start_date.strftime("%Y%m%d")}_{self.end_date.strftime("%Y%m%d")}.csv')
+        file_name = os.path.join(self.stock_type, f'stock_prices_{self.start_date.strftime("%Y%m%d")}_{self.end_date.strftime("%Y%m%d")}.csv')
         result_df.to_csv(file_name, encoding='utf-8-sig')
         print(f"數據已保存到 {file_name}")
 
@@ -156,14 +156,14 @@ class StockDataFetcher:
 
 if __name__ == "__main__":
     fetcher = StockDataFetcher()
-    
+    type = 'tse'
     # 設置日期範圍和股票類型
-    fetcher.set_date_range('2024-07-01', '2024-07-31')
-    fetcher.set_stock_type('otc')
-    
+    start_date = '2024-07-01'
+    end_date = '2024-09-05'
+    fetcher.set_date_range(start_date, end_date)
+    fetcher.set_stock_type(type)
     # 存儲新的價格數據
     fetcher.store_price()
+     
     
-    # 添加歷史價格數據
-    fetcher.set_date_range('2024-06-01', '2024-06-30')
-    fetcher.add_historical_prices('otc_stock_prices_20240701_20240731.csv', add_to='start')
+     
