@@ -123,7 +123,7 @@ class StockDataFetcher:
         print(f"數據已保存到 {file_name}")
 
     def add_historical_prices(self, csv_file, add_to='end'):
-        """將新的股票數據添加到現有的 CSV 文件中。"""
+        """將新的股票數據添加到現有的 CSV 文件中，並更新文件名。"""
         # 讀取原有的 CSV 文件
         df = pd.read_csv(csv_file, index_col=0)
         
@@ -141,12 +141,30 @@ class StockDataFetcher:
                 combined_df = pd.concat([df, new_df], axis=1)
                 print(f"歷史數據已添加到文件尾部")
             
-            # 保存合併後的數據
-            combined_df.to_csv(csv_file, encoding='utf-8-sig')
             
-            print(f"數據已保存到 {csv_file}")
+             
+            new_date=None
+            with open('date.txt', 'r') as f:
+                new_date=f.readline()
+                
+            print(new_date)
+            # 構建新的文件名
+            new_filename = f"{self.stock_type}/stock_prices_20240701_{new_date}.csv"
+            
+            # 保存合併後的數據到新文件
+            combined_df.to_csv(new_filename, encoding='utf-8-sig')
+            
+            # 刪除舊文件
+            os.remove(csv_file)
+            
+            print(f"數據已保存到 {new_filename}")
+            
+            
+            
+            
         else:
             print("沒有獲取到新的數據")
+
     def _convert_to_rocdate(self, date):
         # 將西元年日期轉換為民國年日期
         western_year = int(date[:4])
@@ -156,14 +174,20 @@ class StockDataFetcher:
 
 if __name__ == "__main__":
     fetcher = StockDataFetcher()
-    type = 'tse'
+    type = 'otc'
     # 設置日期範圍和股票類型
-    start_date = '2024-07-01'
-    end_date = '2024-09-05'
+    start_date = '2024-09-06'
+    end_date = '2024-09-06'
     fetcher.set_date_range(start_date, end_date)
     fetcher.set_stock_type(type)
     # 存儲新的價格數據
-    fetcher.store_price()
+    # 假設我們有一個現有的 CSV 文件
+    with open('olddate.txt', 'r') as f:
+        old_date=f.readline()
+    existing_file = f'{type}/stock_prices_20240701_{old_date}.csv'
+    
+    # 添加新的歷史價格數據並更新文件名
+    fetcher.add_historical_prices(existing_file)
      
     
      

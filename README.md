@@ -39,3 +39,27 @@ python filter.py
 ```python
 python calculate.py
 ```
+
+### renew data
+* step 1
+```python
+# seachprice.py
+# set date range
+start_date = 'new start date'
+end_date = 'new end date'
+fetcher.set_date_range(start_date, end_date)
+# set stock type
+type = 'tse'
+fetcher.set_stock_type(type)
+# set existing file
+existing_file = 'original file'
+fetcher.add_historical_prices(existing_file)
+```
+* step 2
+```python
+modify olddate.txt to your olddate
+modify date.txt to your newdate
+```
+```pytho
+python updatefile.py
+```
